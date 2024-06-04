@@ -1,12 +1,12 @@
 {
-    "name": "edujugon/laradoo",
+    "name": "kunallamage/laradoo",
     "description": "Odoo ERP API for Laravel",
     "keywords": ["odoo","laravel","erp","package"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Eduardo Marcos",
-            "email": "edujugon@gmail.com"
+            "name": "kunal",
+            "email": "kunal.dyp6@gmail.com"
         }
     ],
     "autoload": {
