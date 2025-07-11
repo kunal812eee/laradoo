@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Ripcord is an easy to use XML-RPC library for PHP. 
  * @package Ripcord
@@ -14,9 +15,9 @@
  */
 interface Ripcord_Documentor_Interface 
 {
-	public function setMethodData( $methods );
-	public function handle( $rpcServer );
-	public function getIntrospectionXML();
+	public function setMethodData(array $methods): void;
+	public function handle(object $rpcServer): void;
+	public function getIntrospectionXML(): string;
 }
 
 /**
@@ -189,7 +190,7 @@ class Ripcord_Documentor implements Ripcord_Documentor_Interface
 	 * The constructor for the Ripcord_Documentor class. 
 	 * @param array $options. Optional. Allows you to set the public properties of this class upon construction.
 	 */
-	public function __construct( $options = null, $docCommentParser = null ) 
+	public function __construct(?array $options = null, $docCommentParser = null) 
 	{
 		$check = array( 'name', 'css', 'wsdl', 'wsdl2', 'root', 'version', 'header', 'footer' );
 		foreach ( $check as $name )
@@ -206,7 +207,7 @@ class Ripcord_Documentor implements Ripcord_Documentor_Interface
 	 * This method fills the list of method data with all the user supplied methods of the rpc server.
 	 * @param array $methodData A list of methods with name and callback information.
 	 */
-	public function setMethodData( $methodData )
+	public function setMethodData(array $methodData): void
 	{
 		$this->methods = $methodData;
 	}
@@ -215,7 +216,7 @@ class Ripcord_Documentor implements Ripcord_Documentor_Interface
 	 * This method handles any request which isn't a valid rpc request.
 	 * @param object $rpcServer A reference to the active rpc server.
 	 */
-	public function handle( $rpcServer ) 
+	public function handle(object $rpcServer): void 
 	{
 		$methods = $rpcServer->call('system.listMethods');
 		echo '<!DOCTYPE html>';
@@ -396,7 +397,7 @@ class Ripcord_Documentor implements Ripcord_Documentor_Interface
 	 * Descriptions are added from phpdoc docblocks if found.
 	 * @return string XML string with the introspection data.
 	 */
-	function getIntrospectionXML() 
+	function getIntrospectionXML(): string 
 	{
 		$xml = "<?xml version='1.0' ?><introspection version='1.0'><methodList>";
 		if ( isset($this->methods) && is_array( $this->methods ) )
@@ -493,7 +494,7 @@ interface Ripcord_Documentor_Parser
 	 * @param string $commentBlock The docComment block.
 	 * @return array The parsed information.
 	 */
-	public function parse( $commentBlock );
+	public function parse(string $commentBlock): array;
 }
 
 /**
@@ -509,7 +510,7 @@ class Ripcord_Documentor_Parser_phpdoc implements Ripcord_Documentor_Parser
 	 * @param string $commentBlock The docComment block.
 	 * @return array The parsed information.
 	 */
-	public function parse( $commentBlock) 
+	public function parse(string $commentBlock): array
 	{
 		$this->currentTag = 'description';
 		$description = preg_replace('/^(\s*(\/\*\*|\*\/|\*))/m', '', $commentBlock);
@@ -524,7 +525,7 @@ class Ripcord_Documentor_Parser_phpdoc implements Ripcord_Documentor_Parser
 	/**
 	 * This method parses a single line from the comment block.
 	 */
-	private function parseLine( $line, $info ) 
+	private function parseLine(string $line, array $info): array 
 	{
 		$handled = false;
 		if (preg_match('/^\s*(@[a-z]+)\s(.*)$/i', $line, $matches)) 
@@ -583,7 +584,7 @@ class Ripcord_Documentor_Parser_phpdoc implements Ripcord_Documentor_Parser
 	/**
 	 * This method parses only the text description part of a line of the comment block.
 	 */
-	private function parseDescription( $line ) {
+	private function parseDescription(string $line): string {
 		while ( preg_match('/{@([^}]*)}/', $line, $matches) ) {
 			switch( $matches[1] ) {
 				case 'internal' : 

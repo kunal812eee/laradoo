@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Ripcord is an easy to use XML-RPC library for PHP. 
  * @package Ripcord
@@ -103,7 +104,7 @@ class Ripcord_Server
 	 * @throws Ripcord_InvalidArgumentException (ripcord::unknownServiceType) when passed an incorrect service
 	 * @throws Ripcord_ConfigurationException (ripcord::xmlrpcNotInstalled) when the xmlrpc extension in not available.
 	 */
-	function __construct($services = null, $options = null, $documentor = null) 
+	function __construct(mixed $services = null, ?array $options = null, $documentor = null) 
 	{
 		if ( !function_exists( 'xmlrpc_server_create' ) )
 		{
@@ -141,7 +142,7 @@ class Ripcord_Server
 	 * @param string $serviceName Optional. The namespace for the methods.
 	 * @throws Ripcord_InvalidArgumentException (ripcord::unknownServiceType) when passed an incorrect service
 	 */
-	public function addService($service, $serviceName = 0) 
+	public function addService(object|string|callable $service, string|int $serviceName = 0): void 
 	{
 		if ( is_object( $service ) ) 
 		{
@@ -192,7 +193,7 @@ class Ripcord_Server
 	 * @param string $name The name of the method as exposed through the rpc server
 	 * @param callback $method The name of the method to call, or an array with classname or object and method name.
 	 */
-	public function addMethod($name, $method) 
+	public function addMethod(string $name, callable|array $method): void 
 	{
 		$this->methods[$name] = array(
 			'name' => $name,
@@ -204,7 +205,7 @@ class Ripcord_Server
 	/**
 	 * Runs the rpc server. Automatically handles an incoming request.
 	 */
-	public function run() 
+	public function run(): void 
 	{
 		if ($this->documentor) {
 			$this->documentor->setMethodData( $this->methods );
@@ -255,7 +256,7 @@ class Ripcord_Server
 	 * This method wraps around xmlrpc_decode_request, since it is borken in many ways. This wraps
 	 * around all the ugliness needed to make it not dump core and not print expat warnings.
 	 */
-	private function parseRequest( $request_xml ) {
+	private function parseRequest( string $request_xml ): array {
 		$xml = @simplexml_load_string($request_xml);
 		if (!$xml && !$xml->getNamespaces()) { 
 			// FIXME: check for protocol json-rpc
@@ -290,7 +291,7 @@ class Ripcord_Server
 	 * This method implements the system.multiCall method without dumping core. The built-in method from the
 	 * xmlrpc library dumps core when you have registered any php methods, fixed in php 5.3.2
 	 */
-	private function multiCall( $params = null ) {
+	private function multiCall( ?array $params = null ): string {
 		if ( $params && is_array( $params ) ) 
 		{
 			$result = array();
@@ -321,7 +322,7 @@ class Ripcord_Server
 	 * @param string $request_xml The incoming request.
 	 * @return string
 	 */
-	public function handle($request_xml) 
+	public function handle( string $request_xml ): string 
 	{
 		$result = $this->parseRequest( $request_xml );
 		if (!$result || ripcord::isFault( $result ) )
@@ -360,7 +361,7 @@ class Ripcord_Server
 	 * @throws Ripcord_InvalidArgumentException (ripcord::cannotRecurse) when passed a recursive multiCall
  	 * @throws Ripcord_BadMethodCallException (ripcord::methodNotFound) when the requested method isn't available.
 	 */
-	public function call( $method, $args = null ) 
+	public function call( string $method, ?array $args = null ): mixed 
 	{
 		if ( isset( $this->methods[$method] ) ) 
 		{
@@ -402,7 +403,7 @@ class Ripcord_Server
 	 *   the default.
 	 * - encoding: The character encoding that the data is in. Can be any supported character encoding. Default is 'utf-8'.
 	 */
-	public function setOutputOption($option, $value) 
+	public function setOutputOption( string $option, mixed $value ): bool 
 	{
 		if ( isset($this->outputOptions[$option]) ) 
 		{

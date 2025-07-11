@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Project: Laradoo.
  * User: Edujugon
@@ -146,7 +147,7 @@ class Odoo
      * @return $this
      * @throws OdooException
      */
-    public function connect($db = null, $username = null, $password = null, array $array = [])
+    public function connect(?string $db = null, ?string $username = null, ?string $password = null, array $array = []): self
     {
 
         $this->db = $db ?: $this->db;
@@ -163,12 +164,12 @@ class Odoo
      * Check access rights on a model.
      * return true or a string with the error.
      *
-     * @param string $permission
+     * @param string|array $permission
      * @param string $model
      * @param bool $withExceptions
      * @return string|true
      */
-    public function can($permission, $model, $withExceptions = false)
+    public function can(string|array $permission, string $model, bool $withExceptions = false): string|bool
     {
         if (!is_array($permission)) $permission = [$permission];
 
@@ -188,7 +189,7 @@ class Odoo
      * @param string $value
      * @return $this
      */
-    public function where($field, $operator, $value = null)
+    public function where(string $field, string $operator, string $value = null): self
     {
         if (func_num_args() === 2)
             $new = [$field, '=', $operator];
@@ -209,7 +210,7 @@ class Odoo
      * @param int $offset
      * @return $this
      */
-    public function limit($limit, $offset = 0)
+    public function limit(int $limit, int $offset = 0): self
     {
         $this->limit = $limit;
         $this->offset = $offset;
@@ -223,7 +224,7 @@ class Odoo
      * @param array $fields
      * @return $this
      */
-    public function fields($fields)
+    public function fields(array|string ...$fields): self
     {
         $this->fields = is_array($fields) ? $fields : func_get_args();
 
@@ -237,7 +238,7 @@ class Odoo
      * @return Collection
      * @throws OdooException
      */
-    public function search($model)
+    public function search(string $model): Collection|string
     {
         $method = 'search';
 
@@ -261,7 +262,7 @@ class Odoo
      * @return integer
      * @throws OdooException
      */
-    public function count($model)
+    public function count(string $model): int|string
     {
         $method = 'search_count';
 
@@ -283,7 +284,7 @@ class Odoo
      * @return Collection
      * @throws OdooException
      */
-    public function get($model)
+    public function get(string $model): Collection
     {
         $method = 'read';
 
@@ -313,7 +314,7 @@ class Odoo
      * @param string $key
      * @return Collection|string
      */
-    public function version($key = null)
+    public function version(?string $key = null): Collection|string
     {
         $urlCommon = $this->setApiEndPoint($this->commonEndPoint);
 
@@ -328,7 +329,7 @@ class Odoo
      * @param string $model
      * @return Collection
      */
-    public function fieldsOf($model)
+    public function fieldsOf(string $model): Collection
     {
         $method = 'fields_get';
 
@@ -345,7 +346,7 @@ class Odoo
      * @param array $data
      * @return integer
      */
-    public function create($model, array $data)
+    public function create(string $model, array $data): int|string
     {
         $method = 'create';
 
@@ -364,7 +365,7 @@ class Odoo
      * @return true|string
      * @throws OdooException
      */
-    public function update($model, array $data)
+    public function update(string $model, array $data): bool|string
     {
         if ($this->hasNotProvided($this->condition))
             return "To prevent updating all records you must provide at least one condition. Using where method would solve this.";
@@ -391,7 +392,7 @@ class Odoo
      * @param array|Collection|int $id
      * @return true|string
      */
-    public function deleteById($model, $id)
+    public function deleteById(string $model, int|array|Collection $id): bool|string
     {
         if ($id instanceof Collection)
             $id = $id->toArray();
@@ -411,7 +412,7 @@ class Odoo
      * @return true|string
      * @throws OdooException
      */
-    public function delete($model)
+    public function delete(string $model): bool|string
     {
         if ($this->hasNotProvided($this->condition))
             return "To prevent deleting all records you must provide at least one condition. Using where method would solve this.";
@@ -432,7 +433,7 @@ class Odoo
      * @param $params
      * @return Collection
      */
-    public function call($params)
+    public function call(...$params): Collection
     {
         //Prevent user forgetting connect with the ERP.
         $this->autoConnect();
@@ -451,7 +452,7 @@ class Odoo
      * @param string $endPoint
      * @return \Ripcord_Client
      */
-    public function getClient($endPoint)
+    public function getClient(string $endPoint): \Ripcord_Client
     {
         return ripcord::client($endPoint);
     }
@@ -475,7 +476,7 @@ class Odoo
      * @param string $url.
      * @return $this
      */
-    public function host($url)
+    public function host(string $url): self
     {
         $this->host = $url;
 
@@ -488,7 +489,7 @@ class Odoo
      * @param string $username
      * @return $this
      */
-    public function username($username)
+    public function username(string $username): self
     {
         $this->username = $username;
 
@@ -501,7 +502,7 @@ class Odoo
      * @param string $password
      * @return $this
      */
-    public function password($password)
+    public function password(string $password): self
     {
         $this->password = $password;
 
@@ -514,7 +515,7 @@ class Odoo
      * @param string $name
      * @return $this
      */
-    public function db($name)
+    public function db(string $name): self
     {
         $this->db = $name;
 
@@ -527,7 +528,7 @@ class Odoo
      * @param $name
      * @return $this
      */
-    public function apiSuffix($name)
+    public function apiSuffix(string $name): self
     {
         $this->suffix = $name;
 
@@ -551,7 +552,7 @@ class Odoo
      *
      * @return integer
      */
-    public function getUid()
+    public function getUid(): ?int
     {
         return $this->uid;
     }
@@ -561,7 +562,7 @@ class Odoo
      *
      * @return string
      */
-    public function getHost()
+    public function getHost(): ?string
     {
         return $this->host;
     }
@@ -571,7 +572,7 @@ class Odoo
      *
      * @return string
      */
-    public function getDb()
+    public function getDb(): ?string
     {
         return $this->db;
     }
@@ -581,7 +582,7 @@ class Odoo
      *
      * @return string
      */
-    public function getUserName()
+    public function getUserName(): ?string
     {
         return $this->username;
     }
@@ -591,7 +592,7 @@ class Odoo
      *
      * @return string
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -618,7 +619,7 @@ class Odoo
      * @param array $array
      * @throws OdooException
      */
-    private function auth($db, $username, $password, array $array = [])
+    private function auth(string $db, string $username, string $password, array $array = []): void
     {
         //Prepare urls for different clients
         $urlCommon = $this->setApiEndPoint($this->commonEndPoint);
@@ -647,7 +648,7 @@ class Odoo
      * @return string
      * @throws OdooException OdooException
      */
-    private function setApiEndPoint($endPoint)
+    private function setApiEndPoint(string $endPoint): string
     {
         if (empty($this->host))
             throw new OdooException('You must provide the odoo host by host setter method');
@@ -661,7 +662,7 @@ class Odoo
      *
      * @param $params
      */
-    private function resetParams($params)
+    private function resetParams(...$params): void
     {
         $keys = is_array($params) ? $params : func_get_args();
 
@@ -679,7 +680,7 @@ class Odoo
      * @return array
      * @internal param $keys
      */
-    private function buildParams($params)
+    private function buildParams(...$params): array
     {
         $keys = is_array($params) ? $params : func_get_args();
 
@@ -705,7 +706,7 @@ class Odoo
      * @throws OdooException
      * @return mixed
      */
-    private function makeResponse($result, $key = null, $cast = null)
+    private function makeResponse($result, $key = null, $cast = null): mixed
     {
         if (array_key_exists('faultCode', $result->toArray())) {
             throw new OdooException($result['faultString']);
@@ -722,7 +723,7 @@ class Odoo
     /**
      * Load data from config file.
      */
-    private function loadConfigData()
+    private function loadConfigData(): void
     {
         //Load config data
         $config = laradooConfig();
@@ -745,7 +746,7 @@ class Odoo
      * @param $param
      * @return bool
      */
-    private function hasNotProvided($param)
+    private function hasNotProvided($param): bool
     {
         return !$param;
     }
@@ -753,7 +754,7 @@ class Odoo
     /**
      * Auto connect with the ERP if there isn't uid.
      */
-    private function autoConnect()
+    private function autoConnect(): void
     {
         if (!$this->uid) $this->connect();
     }

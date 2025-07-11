@@ -17,12 +17,10 @@ class OdooTest extends TestCase
     protected $username;
     protected $password;
 
-    public function __construct()
+    protected function setUp(): void
     {
-        parent::__construct();
-
+        parent::setUp();
         $this->odoo = new Odoo();
-
         $this->setDemoCredentials();
         $this->createOdooInstance();
     }
@@ -32,12 +30,21 @@ class OdooTest extends TestCase
      */
     protected function setDemoCredentials()
     {
+        $envHost = "http://indus.mahaerp.com:8069";
+        $envDb = "indus.mahaerp.com";
+        $envUsername = "admin";
+        $envPassword = "admin";
 
-        $info = $this->odoo->getClient('https://demo.odoo.com/start')->start();
-
-        list($this->host, $this->db, $this->username, $this->password) =
-            array($info['host'], $info['database'], $info['user'], $info['password']);
-
+        if ($envHost && $envDb && $envUsername && $envPassword) {
+            $this->host = $envHost;
+            $this->db = $envDb;
+            $this->username = $envUsername;
+            $this->password = $envPassword;
+        } else {
+            $info = $this->odoo->getClient('https://demo.odoo.com/start')->start();
+            list($this->host, $this->db, $this->username, $this->password) =
+                array($info['host'], $info['database'], $info['user'], $info['password']);
+        }
     }
 
     /**

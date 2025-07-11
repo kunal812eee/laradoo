@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Ripcord is an easy to use XML-RPC library for PHP. 
  * @package Ripcord
@@ -20,7 +21,7 @@ class ripcord
 	 *  @param mixed $fault
 	 *  @return bool
 	 */
-	public static function isFault($fault) 
+	public static function isFault(mixed $fault): bool 
 	{
 		if ( isset($fault) && is_array($fault) ) {
 			return xmlrpc_is_fault($fault);
@@ -35,7 +36,7 @@ class ripcord
 	 *  @param string $message
 	 *  @return array
 	 */
-	public static function fault($code, $message) 
+	public static function fault(int $code, string $message): array 
 	{
 		return array('faultCode' => $code, 'faultString' => $message);
 	}
@@ -48,7 +49,7 @@ class ripcord
 	 * @param array $options Optional. An array of options to set for the Ripcord server. 
 	 * @see Ripcord_Server
 	 */
-	public static function server($services = null, $options = null, $documentor = null) 
+	public static function server(mixed $services = null, ?array $options = null, $documentor = null): Ripcord_Server 
 	{
 		self::load('Ripcord_Server');
 		if ( !isset($documentor) )
@@ -76,7 +77,7 @@ class ripcord
 	 * @param array $options Optional. An array of options to set for the Ripcord client.
 	 * @see Ripcord_Client
 	 */
-	public static function client($url, $options = null, $transport = null ) 
+	public static function client(string $url, ?array $options = null, $transport = null ): Ripcord_Client 
 	{
 		self::load('Ripcord_Client');
 		if ( !isset($transport) ) 
@@ -93,7 +94,7 @@ class ripcord
 	 * implement the Ripcord_Documentor_CommentParser interface.
 	 * @see Ripcord_Client
 	 */
-	public static function documentor( $options = null, $docCommentParser = null ) 
+	public static function documentor(?array $options = null, $docCommentParser = null): Ripcord_Documentor 
 	{
 		self::load('Ripcord_Documentor');
 		if (!$docCommentParser) {
@@ -107,7 +108,7 @@ class ripcord
 	 * @param int $timestamp
 	 * @return object
 	 */
-	public static function datetime($timestamp) 
+	public static function datetime(int $timestamp): string 
 	{
 		$datetime = date("Ymd\TH:i:s", $timestamp);
 		xmlrpc_set_type($datetime, 'datetime');
@@ -121,7 +122,7 @@ class ripcord
 	 * @param object $datetime
 	 * @return int
 	 */
-	public static function timestamp($datetime) 
+	public static function timestamp(object $datetime): int 
 	{
 		if (xmlrpc_get_type($datetime)=='datetime') 
 		{
@@ -136,7 +137,7 @@ class ripcord
 	 * @param string $binary
 	 * @return object
 	 */
-	public static function base64($binary) 
+	public static function base64(string $binary): string 
 	{
 		xmlrpc_set_type($binary, 'base64');
 		return $binary;
@@ -149,7 +150,7 @@ class ripcord
 	 * @param object $base64
 	 * @return string
 	 */
-	public static function binary($base64) 
+	public static function binary(object $base64): string 
 	{
 		if (xmlrpc_get_type($base64)=='base64')
 		{
@@ -165,7 +166,7 @@ class ripcord
 	 * @param mixed $param
 	 * @return string
 	 */
-	public static function getType($param) 
+	public static function getType(mixed $param): string 
 	{
 		return xmlrpc_get_type($param);
 	}
@@ -176,7 +177,7 @@ class ripcord
 	 * @param array $options Optional.
 	 * @see Ripcord_Client
 	 */
-	public static function soapClient($url, $options = null, $transport = null) 
+	public static function soapClient(string $url, ?array $options = null, $transport = null): Ripcord_Client 
 	{
 		$options['version'] = 'soap 1.1';
 		return self::client($url, $options, $transport);
@@ -189,7 +190,7 @@ class ripcord
 	 * @return object
 	 * @see Ripcord_Client
 	 */
-	public static function xmlrpcClient($url, $options = null, $transport = null) 
+	public static function xmlrpcClient(string $url, ?array $options = null, $transport = null): Ripcord_Client 
 	{
 		$options['version'] = 'xmlrpc';
 		return self::client($url, $options, $transport);
@@ -202,7 +203,7 @@ class ripcord
 	 * @return object
 	 * @see Ripcord_Client
 	 */
-	public static function simpleClient($url, $options = null, $transport = null) 
+	public static function simpleClient(string $url, ?array $options = null, $transport = null): Ripcord_Client 
 	{
 		$options['version'] = 'simple';
 		return self::client($url, $options, $transport);
@@ -213,7 +214,7 @@ class ripcord
 	 * @param string $class The name of the class to load.
 	 * @return boolean
 	 */
-	public static function load($class) 
+	public static function load(string $class): bool 
 	{
 		if (substr($class, 0, 8)=='Ripcord_') 
 		{
@@ -243,12 +244,10 @@ class ripcord
 	 * @param mixed $args,... The remainder of the arguments are encoded as parameters to the call
 	 * @return object
 	 */
-	public static function encodeCall() 
+	public static function encodeCall(string $method, ...$args): Ripcord_Client_Call 
 	{
 		self::load('Ripcord_Client');
-		$params = func_get_args();
-		$method = array_shift($params);
-		return new Ripcord_Client_Call( $method, $params );
+		return new Ripcord_Client_Call( $method, $args );
 	}
 	
 	/* 
@@ -260,7 +259,7 @@ class ripcord
 	 * will always result in $result eventually containing the return value of $client->someMethod().
 	 * Whether multiCall mode has been enabled or not.
 	 */
-	public function bind(&$bound, $call) 
+	public function bind(mixed &$bound, mixed $call): void 
 	{
 		if ( is_a( $call, 'Ripcord_Client_Call' ) ) 
 		{
@@ -268,7 +267,6 @@ class ripcord
 		} else {
 			$bound = $call;
 		}
-		return null;
 	}
 	
 	/**

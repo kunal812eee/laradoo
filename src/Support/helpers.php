@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Project: laradoo.
  * User: Edujugon
@@ -12,7 +13,7 @@
  *
  * @return array
  */
-function laradooConfig()
+function laradooConfig(): array
 {
     if (function_exists('config_path')) {
         if (file_exists(config_path('laradoo.php'))) {
@@ -31,13 +32,13 @@ function laradooConfig()
  * Add Character to a given string if char no exists.
  * By default is concatenated either prefix and suffix.
  *
- * @param $text
- * @param $char
+ * @param string $text
+ * @param string $char
  * @param bool $prefix
  * @param bool $suffix
  * @return string
  */
-function laradooAddCharacter($text, $char, $prefix = true, $suffix = true)
+function laradooAddCharacter(string $text, string $char, bool $prefix = true, bool $suffix = true): string
 {
     if ($prefix && substr($text, 0, 1) !== $char)
         $text = $char . $text;
@@ -52,13 +53,13 @@ function laradooAddCharacter($text, $char, $prefix = true, $suffix = true)
  * Remove Character to a given string if char exists.
  * By default is removed from both side.
  *
- * @param $text
- * @param $char
+ * @param string $text
+ * @param string $char
  * @param bool $prefix
  * @param bool $suffix
  * @return string
  */
-function laradooRemoveCharacter($text, $char, $prefix = true, $suffix = true)
+function laradooRemoveCharacter(string $text, string $char, bool $prefix = true, bool $suffix = true): string
 {
     if ($prefix && substr($text, 0, 1) === $char)
         $text = substr($text,1);

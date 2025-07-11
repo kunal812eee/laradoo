@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Ripcord is an easy to use XML-RPC library for PHP. 
  * @package Ripcord
@@ -123,7 +124,7 @@ class Ripcord_Client
 	 * @param object $rootClient Optional. Used internally when using namespaces.
 	 * @throws Ripcord_ConfigurationException (ripcord::xmlrpcNotInstalled) when the xmlrpc extension is not available.
 	 */
-	public function __construct( $url, array $options = null, $transport = null, $rootClient = null ) 
+	public function __construct(string $url, ?array $options = null, $transport = null, $rootClient = null) 
 	{
 		if ( !isset($rootClient) ) {
 			$rootClient = $this;
@@ -162,7 +163,7 @@ class Ripcord_Client
 	 * arguments passed do not have the correct method call information
 	 * @throws Ripcord_RemoteException when _throwExceptions is true and the server returns an XML-RPC Fault.
 	 */
-	public function __call($name, $args) 
+	public function __call(string $name, array $args): mixed 
 	{
 		if ( isset($this->_namespace) ) 
 		{
@@ -280,7 +281,7 @@ class Ripcord_Client
 	 * @param string $name The name of the namespace
 	 * @return object A Ripcord Client with the given namespace set.
 	 */
-	public function __get($name) 
+	public function __get(string $name): mixed 
 	{
 		$result = null;
 		if ( !isset($this->{$name}) ) 
@@ -321,7 +322,7 @@ class Ripcord_Client_MultiCall extends Ripcord_Client
 	/*
 	 * This method creates a new multiCall fetch api object.
 	 */
-	public function __construct( $client, $methodName = 'system.multiCall' ) 
+	public function __construct(Ripcord_Client $client, string $methodName = 'system.multiCall') 
 	{
 		$this->client = $client;
 		$this->methodName = $methodName;
@@ -331,7 +332,7 @@ class Ripcord_Client_MultiCall extends Ripcord_Client
 	 * This method puts the client into multiCall mode. While in this mode all 
 	 * method calls are collected as deferred calls (Ripcord_Client_Call).
 	 */
-	public function start() 
+	public function start(): void 
 	{	
 		$this->client->_multiCall = true;
 	}
@@ -340,7 +341,7 @@ class Ripcord_Client_MultiCall extends Ripcord_Client
 	 * This method finally calls the clients multiCall method with all deferred
 	 * method calls since multiCall mode was enabled.
 	 */
-	public function execute() 
+	public function execute(): mixed 
 	{
 		if ($this->methodName=='system.multiCall') {
 			return $this->client->system->multiCall( $this->client->_multiCallArgs );
@@ -385,7 +386,7 @@ class Ripcord_Client_Call
 	 * @param string $method The name of the rpc method to call
 	 * @param array $params The parameters for the rpc method.
 	 */
-	public function __construct($method, $params) 
+	public function __construct(string $method, array $params) 
 	{
 		$this->method = $method;
 		$this->params = $params;
@@ -398,17 +399,16 @@ class Ripcord_Client_Call
 	 * @param mixed $bound The variable to bind the result from this call to.
 	 * @return object Returns this object for chaining.
 	 */
-	public function bind(&$bound) 
+	public function bind(mixed &$bound): void 
 	{
 		$this->bound =& $bound;
-		return $this;
 	}
 
 	/**
 	 * This method returns the correct format for a multiCall argument.
 	 * @return array An array with the methodName and params
 	 */
-	public function encode() {
+	public function encode(): array {
 		return array(
 			'methodName' => $this->method,
 			'params' => (array) $this->params
@@ -430,7 +430,7 @@ interface Ripcord_Transport
 	 * @param string $request The request to post.
 	 * @return string The server response
 	 */
-	public function post( $url, $request );
+	public function post(string $url, string $request): string;
 }
 
 /**
@@ -453,7 +453,7 @@ class  Ripcord_Transport_Stream implements Ripcord_Transport
 	 * This is the constructor for the Ripcord_Transport_Stream class.
 	 * @param array $contextOptions Optional. An array with stream context options.
 	 */
-	public function __construct( $contextOptions = null ) 
+	public function __construct(?array $contextOptions = null) 
 	{
 		if ( isset($contextOptions) ) 
 		{
@@ -468,7 +468,7 @@ class  Ripcord_Transport_Stream implements Ripcord_Transport
 	 * @return string The server response
 	 * @throws Ripcord_TransportException (ripcord::cannotAccessURL) when the given URL cannot be accessed for any reason.
 	 */
-	public function post( $url, $request ) 
+	public function post(string $url, string $request): string 
 	{
 		$options = array_merge( 
 			$this->options, 
@@ -519,7 +519,7 @@ class Ripcord_Transport_CURL implements Ripcord_Transport
 	 * This is the constructor for the Ripcord_Transport_CURL class.
 	 * @param array $curlOptions A list of CURL options.
 	 */
-	public function __construct( $curlOptions = null ) 
+	public function __construct(?array $curlOptions = null) 
 	{
 		if ( isset($curlOptions) )
 		{
@@ -538,7 +538,7 @@ class Ripcord_Transport_CURL implements Ripcord_Transport
 	 * @throws Ripcord_TransportException (ripcord::cannotAccessURL) when the given URL cannot be accessed for any reason.
 	 * @return string The server response
 	 */
-	public function post( $url, $request) 
+	public function post(string $url, string $request): string 
 	{
 		$curl = curl_init();
 		$options = (array) $this->options + array(
